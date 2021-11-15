@@ -4,6 +4,8 @@ module.exports = [
     "Estado",
     "Município",
     "URL",
+    // gentílico
+    "Gentílico",
     // população
     "População estimada",
     "População no último censo",

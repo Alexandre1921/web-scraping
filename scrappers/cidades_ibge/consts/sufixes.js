@@ -4,6 +4,8 @@ module.exports = [
     "",
     "",
     "",
+    // gentílico
+    "",
     // população
     "pessoas",
     "pessoas",

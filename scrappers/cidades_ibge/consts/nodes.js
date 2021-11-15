@@ -1,4 +1,6 @@
 module.exports = [
+    // gentílico
+    "#dados > panorama-resumo > div > div.topo > div.topo__celula-direita > p",
     // população
     "#dados > panorama-resumo > div > table > tr:nth-child(2) > td.lista__valor > valor-indicador > div",
     "#dados > panorama-resumo > div > table > tr:nth-child(4) > td.lista__valor > valor-indicador > div",
