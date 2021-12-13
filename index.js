@@ -1,7 +1,9 @@
-const cidades_ibge = require("./scrappers/cidades_ibge");
-const get_cities_ibge = require("./scrappers/get_cities_ibge");
-const fileCreator = require("./util/fileCreator");
-const { existsSync } = require("fs");
+// const cidades_ibge = require("./scrappers/cidades_ibge");
+// const get_cities_ibge = require("./scrappers/get_cities_ibge");
+const sisapidoso = require("./scrappers/sisapidoso");
+const saveCSV = require("./scrappers/sisapidoso/saveCSV");
+// const fileCreator = require("./util/fileCreator");
+// const { existsSync } = require("fs");
 
 // getCities
 // (async () => {
@@ -14,6 +16,11 @@ const { existsSync } = require("fs");
 // })();
 
 // getCities
+// (async () => {
+//     get_cities_ibge();
+// })();
+
 (async () => {
-    get_cities_ibge();
+    sisapidoso(3);
+    // saveCSV(1);
 })();

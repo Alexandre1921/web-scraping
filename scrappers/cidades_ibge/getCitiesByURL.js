@@ -73,7 +73,7 @@ module.exports = async function () {
         const maxCitiesToGet = 500;
     
         objectCities.length = 0;
-        objectCities.push(...newCities.map(url => [url, 'PR', url.split('/').pop()]));
+        objectCities.push(...newCities.map(url => [url, url.split('/')?.[4] || "UF NAO ENCONTRADO", url.split('/').pop()]));
         objectCities.length = objectCities.length > 0 ? maxCitiesToGet : 0;
     
         let lines = "";
