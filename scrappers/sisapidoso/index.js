@@ -5,34 +5,40 @@ const { open } = require("sqlite");
 const { mapLimit, asyncRoot } = require('modern-async');
 const fileCreator = require("../../util/fileCreator");
 
-const getPage = async (fullUrls, currentBatch, saveHeaders = false) => {
+// getDataFrom = [ 'Município', 'UF', 'Região', 'Brasil' ]
+
+const getPage = async (fullUrls, currentBatch, saveHeaders = false, getDataFrom = 0, indexFrom) => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     // await page.setViewport({ width: 800, height: 600 });
-    
+
     const pagesData = [];
     for (let index = 0; index < fullUrls.length; index++) {
         const url = fullUrls[index].url;
 
         await page.goto(url).catch((err) => console.log(err));
-    
-        const { series, xAxisData, title } = await page.evaluate(() => {
+        const { series, xAxisData, title, legendData } = await page.evaluate(() => {
             const series = option.series.map(({ data }) => ({ data }));
             const title = option.title.text.trim().split('\n').join('');
-            // .toLowerCase().split(' ').map(v => v[0].toUpperCase() + v.slice(1, 3)).join('');
-            return { series, xAxisData: option.xAxis.data, legendData: option.legend.data, title };
+            const xAxisData = option.xAxis.data;
+            const legendData = option.legend.data;
+            return { series, xAxisData, legendData, title };
         });
-    
-        pagesData.push(series
-            .flatMap(({ data }) => data.map((v, i) => ({ [(fullUrls[index].indica + '_' + xAxisData[i])]: v || "N/A" })))
+        
+        const data = series[getDataFrom].data.map((item, i) => ({ [(fullUrls[index].indica + '_' + xAxisData[i])]: item || "N/A" })) // empty city
+        const dummyData = series[3].data.map((_, i) => ({ [(fullUrls[index].indica + '_' + xAxisData[i])]: "N/A" }));// empty city
+        const dataToSave = data.length > 0 ? data : dummyData;
+
+        console.log(data);
+
+        pagesData.push(dataToSave
             .reduce((previousValue, currentValue) => Object.assign(previousValue, currentValue), {}));
     }
 
     await browser.close();
 
     const lineData = pagesData.reduce((previousValue, currentValue) => Object.assign(previousValue, currentValue), {});
-
-    console.log('length: ', Object.keys(lineData).length);
+    console.log('batch: ', currentBatch, 'ibgeCode: ', fullUrls[0].ibgeCode, 'length: ', Object.keys(lineData).length);
 
     var db = new sqlite3.Database('./database.db');
     db.serialize(function() {
@@ -40,7 +46,7 @@ const getPage = async (fullUrls, currentBatch, saveHeaders = false) => {
 
         var stmt = db.prepare("INSERT OR IGNORE INTO sisapidoso" + currentBatch + " VALUES (?, ?)");
 
-        stmt.run(fullUrls[0].ibgeCode, Object.values(lineData).join(','));
+        stmt.run(indexFrom, `"${fullUrls[0].ibgeCode}",` + Object.values(lineData).join(','));
         stmt.finalize();
     });
     db.close();
@@ -56,17 +62,17 @@ module.exports = async function (currentBatch = 1) {
     const res = await db.all("SELECT ibge_codigo FROM sisapidoso" + currentBatch);
     const codesAlreadyUsed = res.map(({ ibge_codigo }) => ibge_codigo);
     db.close();
+    const newCodes = ibgeCodes.filter(code => !codesAlreadyUsed.includes(code));
+    console.log(codesAlreadyUsed.length, newCodes.length);
 
     const indicaArray = require("./consts/indicaBatch" + currentBatch + ".js");
     const indicaUrls = indicaArray.map(indica => ({ indica, url: `https://www.saudeidoso.icict.fiocruz.br/novo2/graf_painel.php?indica=${indica}` }));
-    const newCodes = ibgeCodes.filter(code => !codesAlreadyUsed.includes(code));
     const fullUrlsList = newCodes.map(ibgeCode => indicaUrls.map(({ indica, url }) => ({ indica, ibgeCode, url: url+'&municipio='+ibgeCode })));
-    
+
     await asyncRoot(async () => {
         await mapLimit(fullUrlsList, async (fullUrls, index) => {
-            console.log("Current city: ", index + 1, " | code: ", newCodes[index]);
             try {
-                await getPage(fullUrls, currentBatch, index === 0);
+                await getPage(fullUrls, currentBatch, index === 0, 0, index);
             } catch (error) {
                 console.log(error);
                 // errors++;

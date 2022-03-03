@@ -11,7 +11,7 @@ module.exports = async function (currentBatch = 1) {
   const res = await db.all("SELECT * FROM sisapidoso" + currentBatch);
   db.close();
 
-  let csvContent = 'ibge_codigo,'+ headers.join(',') + "\n";
-  csvContent += res.map(({ ibge_codigo, line_data }) => ibge_codigo +','+ line_data).join("\n");
+  let csvContent = '"ibge_codigo/UF",'+ headers.join(',') + "\n";
+  csvContent += res.map(({ line_data }) => line_data).join("\n");
   fileCreator("./result/sisapidoso" + currentBatch + ".csv", csvContent, "File sisapidoso" + currentBatch + ".csv created");
 }

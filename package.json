@@ -1,8 +1,10 @@
 {
   "dependencies": {
+    "axios": "^0.26.0",
     "modern-async": "^1.0.3",
     "puppeteer": "^10.2.0",
     "puppeteer-core": "^10.2.0",
+    "querystring": "^0.2.1",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.2"
   }
