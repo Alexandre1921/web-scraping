@@ -1,5 +1,8 @@
 const puppeteer = require('puppeteer');
 const fileCreator = require("../../util/fileCreator");
+const parcialData = require('../../result/sisapidosoParcialData.json');
+
+console.log(parcialData);
 
 // type - N = Numero, P = Proporcao, T = Taxa
 // geograficDesagragation - Brasil, GrandesRegioes, UFs, Municipios
@@ -99,7 +102,7 @@ module.exports = async function () {
     // -------
 
     
-    const data = {};
+    const data = parcialData ? parcialData : {};
     const types = ['P', 'N', 'T', 'I', 'R'];
     const regs = [BrasilReg, UFsReg, MunicipiosReg];
     for (let i = 0; i < regs.length; i++) {
@@ -115,10 +118,23 @@ module.exports = async function () {
                 if (!data[currentV[indexx]]?.[types[index]])
                     data[currentV[indexx]][types[index]] = {};
 
+                console.log('------------------------');
                 console.log(currentV[indexx] + types[index] + regName);
                 console.log(currentV[indexx] + ' - Type: ' + types[index] + ' - ' + regName);
-                const res = await getPage(currentV[indexx], types[index], regName);
-                data[currentV[indexx]][types[index]][regName] = res;
+                
+                if (!parcialData[currentV[indexx]]?.[types[index]]?.[regName]) {
+                    console.log('Not found');
+                    const res = await getPage(currentV[indexx], types[index], regName);
+                    if (res) {
+                        data[currentV[indexx]][types[index]][regName] = res;
+                        await fileCreator("./result/sisapidosoParcialData.json", JSON.stringify(data), "File sisapidosoParcialData.json created");
+                        console.log('Not Empty');
+                    } else {
+                        console.log('Empty, reason: ', res);
+                    }
+                } else {
+                    console.log('Found');
+                }
             }
         }
     }
