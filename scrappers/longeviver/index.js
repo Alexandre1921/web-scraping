@@ -21,7 +21,7 @@ const getBody = (ibgeCodigo, results) => {
   
 
 const getPage = async (url, ibgeCodigos) => {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     // await page.setViewport({ width: 800, height: 600 });
     
@@ -88,14 +88,14 @@ const getPage = async (url, ibgeCodigos) => {
 }
 
 module.exports = async function () {
-    const db = await open({
-        filename: './database.db',
-        driver: sqlite3.Database
-    });
-    const res = await db.all("SELECT ibge_codigo FROM longeviver");
-    const codesAlreadyUsed = res.map(({ ibge_codigo }) => ibge_codigo);
-    db.close();
+    // const db = await open({
+    //     filename: './database.db',
+    //     driver: sqlite3.Database
+    // });
+    // const res = await db.all("SELECT ibge_codigo FROM longeviver");
+    // const codesAlreadyUsed = res.map(({ ibge_codigo }) => ibge_codigo);
+    // db.close();
 
-    const newCodes = ibgeCodes.filter(code => !codesAlreadyUsed.includes(code));
+    const newCodes = ibgeCodes.filter(code => ![].includes(code));
     await getPage("https://plataforma.longeviver.com/longeviver/", newCodes);
 }

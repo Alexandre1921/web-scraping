@@ -62,9 +62,9 @@ const getPage = async (code, type = 'N', geograficDesagragation = 'Municipios') 
 
 module.exports = async function () {
     const codesP = [
-        'H01', 'H02', 'H03', 'H04', 'P02', 'P07', 'P09', 'P24', 'P13', 'P16', 
-        'P33', 'D14',  'D13', 'D01', 'J04', 'J07', 'J03', 'J02', 'J01', 'V01',
-        'I32', 'M33', 'E10', 'C13', 'F01'
+        'D11', 'D12', 'D08','H01', 'H02', 'H03', 'H04', 'P02', 'P07', 'P09', 
+        'P24', 'P13', 'P16','P33', 'D14',  'D13', 'D01', 'J04', 'J07', 'J03',
+        'J02', 'J01', 'V01', 'I32', 'M33', 'E10', 'C13', 'F01'
     ];
     const codesN = [
         'P24', 'D14', 'D13', 'D01', 'V01', 'I32', 'M33', 'E10', 'C13'
@@ -72,36 +72,19 @@ module.exports = async function () {
     const codesT = ['V01', 'I32', 'M33', 'E10'];
     const codesI = ['D02'];
     const codesR = ['D06', 'D07', 'D05', 'D04'];
-    
+
+    const allCodes = [...new Set([codesP, codesN, codesT, codesI, codesR].flat())];
+        
     const BrasilReg = {
-        codesP,
-        codesN,
-        codesT,
-        codesI,
-        codesR,
+        codesP: allCodes,
+        codesN: allCodes,
+        codesT: allCodes,
+        codesI: allCodes,
+        codesR: allCodes,
     };
-    const UFsReg = {
-        codesP,
-        codesN,
-        codesT,
-        codesI,
-        codesR,
-    };
-    const MunicipiosReg = {
-        codesP,
-        codesN,
-        codesT: [codesT[1], codesT[2], codesT[3]],
-        codesI,
-        codesR,
-    };
+    const UFsReg = BrasilReg;
+    const MunicipiosReg = BrasilReg;
 
-    // Erro query
-    // 'D11',
-    // 'D12',
-    // 'D08',
-    // -------
-
-    
     const data = parcialData ? parcialData : {};
     const types = ['P', 'N', 'T', 'I', 'R'];
     const regs = [BrasilReg, UFsReg, MunicipiosReg];
@@ -124,13 +107,17 @@ module.exports = async function () {
                 
                 if (!parcialData[currentV[indexx]]?.[types[index]]?.[regName]) {
                     console.log('Not found');
-                    const res = await getPage(currentV[indexx], types[index], regName);
-                    if (res) {
-                        data[currentV[indexx]][types[index]][regName] = res;
-                        await fileCreator("./result/sisapidosoParcialData.json", JSON.stringify(data), "File sisapidosoParcialData.json created");
-                        console.log('Not Empty');
-                    } else {
-                        console.log('Empty, reason: ', res);
+                    try {
+                        const res = await getPage(currentV[indexx], types[index], regName);
+                        if (res) {
+                            data[currentV[indexx]][types[index]][regName] = res;
+                            await fileCreator("./result/sisapidosoParcialData.json", JSON.stringify(data), "File sisapidosoParcialData.json created");
+                            console.log('Not Empty');
+                        } else {
+                            console.log('Empty, reason: ', res);
+                        }
+                    } catch (error) {
+                        console.log("Error: " + currentV[indexx] + ' - Type: ' + types[index] + ' - ' + regName);
                     }
                 } else {
                     console.log('Found');
@@ -138,13 +125,6 @@ module.exports = async function () {
             }
         }
     }
-    
-    console.log('J06 - Brasil');
-    const res = await getPage('J06', 'P', 'Brasil');
-    data['J06']['P']['Brasil'] = res;
-    console.log('J06 - UFs');
-    const res1 = await getPage('J06', 'P', 'UFs');
-    data['J06']['P']['UFs'] = res1;
 
     console.log(data);
     console.log(data.length);
