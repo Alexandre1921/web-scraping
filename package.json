@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "axios": "^0.26.0",
+    "firebase-admin": "^10.0.2",
     "modern-async": "^1.0.3",
     "puppeteer": "^10.2.0",
     "puppeteer-core": "^10.2.0",

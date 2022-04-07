@@ -30,66 +30,40 @@ const getSubtitleFromElement = (v, sub) => {
 };
 
 module.exports = async function () {
+    const lines = [];
     const indicadores = Object.keys(parcialData);
-    const tipos = Object.keys(Object.values(parcialData)[0]);
-    // const desagregacaoGeografica = ['Brasil', 'UFs', 'Municipios'];
+    for (let index = 0; index < indicadores.length; index++) {
+        const element = indicadores[index];
+        const tipos = Object.keys(parcialData[element]);
 
-    const BrasilData = {subtitles: {}, data: {}};
-    const UFsData = {subtitles: {}, data: {}};
-    const MunicipiosData = {subtitles: {}, data: {}};
-    for (let i = 0; i < indicadores.length; i++) {
-        const element = parcialData[indicadores[i]];
-        for (let i1 = 0; i1 < tipos.length; i1++) {
-            const element1 = element[tipos[i1]];
-            
-            if (element1?.['Brasil']) {
-                MunicipiosData[indicadores[i] + tipos[i1]] = {
-                    data: element1['Brasil'].map(getDataFromElement),
-                    subtitle: element1['Brasil'].map(v => getSubtitleFromElement(v, indicadores[i] + '|' + tipos[i1] + '|' + 'BR|'))[0]
+        for (let index1 = 0; index1 < tipos.length; index1++) {
+            const element1 = tipos[index1];
+
+            // const br = parcialData[element][element1]['Brasil'] || []};
+            // const ufs = parcialData[element][element1]['UFs'] || [];
+            // console.log(element, element1, parcialData[element][element1]);
+            if (parcialData[element][element1]?.Municipios) {
+                console.log(element, element1);
+                const mun = parcialData[element][element1]['Municipios'] || [];
+
+                for (let index2 = 0; index2 < mun.length; index2++) {
+                    const element2 = mun[index2];
+                    const newElement = {};
+                    for (const key in element2) {
+                        if (Object.hasOwnProperty.call(element2, key)) {
+                            const element3 = element2[key];
+                            newElement[`${element}-${element1}-${key}`] = `${element}-${element1}-${key} - ${element3}`;
+                        }
+                    }
+    
+                    if (!lines[index2]) {
+                        lines[index2] = {};
+                    }
+                    lines[index2] = Object.assign(lines[index2], newElement);
                 }
             }
-            if (element1?.['UFs']) {
-                UFsData[indicadores[i] + tipos[i1]] = {
-                    data: element1['UFs'].map(getDataFromElement),
-                    subtitle: element1['UFs'].map(v => getSubtitleFromElement(v, indicadores[i] + '|' + tipos[i1] + '|' + 'UF|'))[0]
-                }
-            }
-            if (element1?.['Municipios']) {
-                MunicipiosData[indicadores[i] + tipos[i1]] = {
-                    data: element1['Municipios'].map(getDataFromElement),
-                    subtitle: element1['Municipios'].map(v => getSubtitleFromElement(v, indicadores[i] + '|' + tipos[i1] + '|' + 'MUN|'))[0]
-                }
-            }
         }
     }
 
-    const final = [];
-    for (const key in BrasilData) {
-        if (Object.hasOwnProperty.call(BrasilData, key)) {
-            const { data, subtitle } = BrasilData[key];
-            if (data) {
-                final.push(subtitle + '\n' + data.join('\n'));
-            }
-        }
-    }
-
-    for (const key in UFsData) {
-        if (Object.hasOwnProperty.call(UFsData, key)) {
-            const { data, subtitle } = UFsData[key];
-            if (data) {
-                final.push(subtitle + '\n' + data.join('\n'));
-            }
-        }
-    }
-
-    for (const key in MunicipiosData) {
-        if (Object.hasOwnProperty.call(MunicipiosData, key)) {
-            const { data, subtitle } = MunicipiosData[key];
-            if (data) {
-                final.push(subtitle + '\n' + data.join('\n'));
-            }
-        }
-    }
-
-    fileCreator("./result/sisapidoso.csv", final.join('\n\n'), "File sisapidoso.csv created");
+    fileCreator("./result/sisapidoso.csv", lines.map((v) => Object.values(v)).join('\n'), "File sisapidoso.csv created");
 }

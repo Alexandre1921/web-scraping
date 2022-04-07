@@ -3,12 +3,12 @@
 
 // const sisapidoso = require("./scrappers/sisapidoso");
 // const saveCSV = require("./scrappers/sisapidoso/saveCSV");
-const longeviver = require("./scrappers/longeviver");
+// const longeviver = require("./scrappers/longeviver");
 // const longeviverSaveCSV = require("./scrappers/longeviver/saveCSV");
 // const getDataFromIbgeAPI = require("./scrappers/cidades_ibge/getDataFromAPI");
 // const buildDataFromAPI = require("./scrappers/cidades_ibge/buildDataFromAPI");
-// const getCities = require("./scrappers/sisapidoso/getCities");
-// const saveAll = require("./scrappers/sisapidoso/saveAll");
+const getCities = require("./scrappers/sisapidoso/getCities");
+const saveAll = require("./scrappers/sisapidoso/saveAll");
 // const siteMercado = require("./scrappers/site_mercado");
 
 // const fileCreator = require("./util/fileCreator");
@@ -38,10 +38,10 @@ const longeviver = require("./scrappers/longeviver");
 //     saveCSV(3);
 // })();
 
-(async () => {
-    longeviver();
+// (async () => {
+    // longeviver();
     // longeviverSaveCSV();
-})();
+// })();
 
 // (async () => {
 //     // getDataFromIbgeAPI();
@@ -49,7 +49,7 @@ const longeviver = require("./scrappers/longeviver");
 // })();
 
 (async () => {
-    // getCities();
+    getCities();
     // saveAll();
 })();
 
